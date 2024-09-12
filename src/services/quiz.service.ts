@@ -1,33 +1,48 @@
-// src/services/quiz.service.ts
+import countries from "../countries.json";
 
-import axios from "axios";
+interface CountryData {
+  country_name: string;
+  capital?: string;
+  country_code: string;
+  continent: string;
+}
+
+interface Country {
+  name: string;
+  capital: string;
+  flag: string;
+}
 
 class QuizService {
-  private static BASE_URL = "https://servicodados.ibge.gov.br/api/v1/paises/AF";
+  private static countries: CountryData[] = countries;
 
-  static async getAllCountries() {
+  static async getAllCountries(continent?: string): Promise<Country[]> {
     try {
-      const response = await axios.get(QuizService.BASE_URL);
-      const countries = response.data.map((country: any) => ({
-        name: country.nome.abreviado,
-        capital: country.governo.capital.nome || "N/A",
-        flag: `https://www.countryflags.io/${country.id["ISO-3166-1-ALPHA-2"]}/flat/64.png`,
-      }));
+      const filteredCountries = continent
+        ? this.countries.filter((country) => country.continent === continent)
+        : this.countries;
 
-      return countries;
+      return filteredCountries.map((country) => ({
+        name: country.country_name,
+        capital: country.capital || "N/A",
+        continent: country.continent,
+        flag: `https://flagcdn.com/w640/${country.country_code.toLowerCase()}.png`,
+      }));
     } catch (error) {
       throw new Error("Não foi possível obter a lista de países.");
     }
   }
 
-  static async getCountryByCode(code: string) {
+  static async getCountryByCode(code: string): Promise<Country> {
     try {
-      const response = await axios.get(`${QuizService.BASE_URL}/${code}`);
-      const country = response.data;
+      const country = this.countries.find((c) => c.country_code === code);
+      if (!country) {
+        throw new Error("País não encontrado.");
+      }
       return {
-        name: country.nome.abreviado,
-        capital: country.governo.capital.nome || "N/A",
-        flag: `https://www.countryflags.io/${country.id["ISO-3166-1-ALPHA-2"]}/flat/64.png`,
+        name: country.country_name,
+        capital: country.capital || "N/A",
+        flag: `https://flagcdn.com/w640/${code.toLowerCase()}.png`,
       };
     } catch (error) {
       throw new Error("Não foi possível encontrar o país.");

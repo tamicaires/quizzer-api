@@ -1,5 +1,3 @@
-// src/routes/quizRoutes.ts
-
 import { Router } from "express";
 import QuizController from "../controllers/controller";
 
@@ -10,6 +8,13 @@ const router = Router();
  * /api/quiz/countries:
  *   get:
  *     summary: Obtém todos os países
+ *     parameters:
+ *       - name: continent
+ *         in: query
+ *         description: Filtro opcional para o continente dos países
+ *         required: false
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
  *         description: Lista de países
@@ -33,12 +38,12 @@ router.get("/countries", QuizController.getAllCountries);
 
 /**
  * @openapi
- * /api/quiz/country/code:
+ * /api/quiz/country/{code}:
  *   get:
  *     summary: Obtém um país pelo código
  *     parameters:
  *       - name: code
- *         in: query
+ *         in: path
  *         description: Código do país
  *         required: true
  *         schema:
@@ -69,6 +74,6 @@ router.get("/countries", QuizController.getAllCountries);
  *     tags:
  *       - Quiz
  */
-router.get("/country/code", QuizController.getCountryByCode);
+router.get("/country/:code", QuizController.getCountryByCode);
 
 export default router;
